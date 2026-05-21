@@ -1,0 +1,121 @@
+import { useState } from 'react'
+import { useToggleLike, useDeleteMoment } from '@/hooks/useMoments'
+import { useMe } from '@/hooks/useAuth'
+import CommentSection from './CommentSection'
+import type { Moment } from '@/lib/types'
+
+interface Props {
+  moment: Moment
+}
+
+export default function MomentCard({ moment }: Props) {
+  const { data: me } = useMe()
+  const like = useToggleLike()
+  const del = useDeleteMoment()
+  const [showComments, setShowComments] = useState(false)
+  const [zoom, setZoom] = useState<string | null>(null)
+
+  const isAuthor = me?.id === moment.author.id
+
+  const time = new Date(moment.created_at).toLocaleString('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  const onDelete = () => {
+    if (!confirm('删除这条动态?')) return
+    del.mutate(moment.id)
+  }
+
+  // 根据图片数量决定网格布局
+  const gridCols =
+    moment.images.length === 1
+      ? 'grid-cols-1 max-w-md'
+      : moment.images.length <= 4
+        ? 'grid-cols-2 max-w-md'
+        : 'grid-cols-3 max-w-lg'
+
+  return (
+    <article className="bg-white rounded-xl p-5 space-y-3">
+      <header className="flex items-center justify-between">
+        <div>
+          <div className="font-medium text-slate-900">{moment.author.username}</div>
+          <div className="text-xs text-slate-400">
+            {time}
+            {moment.visibility === 'private' && (
+              <span className="ml-2 px-1.5 py-0.5 bg-slate-100 rounded">仅自己</span>
+            )}
+          </div>
+        </div>
+        {isAuthor && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="text-xs text-slate-400 hover:text-rose-600"
+          >
+            删除
+          </button>
+        )}
+      </header>
+
+      {moment.content && (
+        <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">
+          {moment.content}
+        </p>
+      )}
+
+      {moment.images.length > 0 && (
+        <div className={`grid gap-1 ${gridCols}`}>
+          {moment.images.map((img) => (
+            <div
+              key={img.id}
+              className="aspect-square cursor-pointer overflow-hidden rounded-md bg-slate-100"
+              onClick={() => setZoom(img.image)}
+            >
+              <img
+                src={img.image}
+                alt=""
+                loading="lazy"
+                className="w-full h-full object-cover hover:scale-105 transition-transform"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center gap-5 text-sm text-slate-500 pt-2">
+        <button
+          type="button"
+          onClick={() => like.mutate(moment.id)}
+          className={`flex items-center gap-1 transition-colors ${
+            moment.liked_by_me ? 'text-rose-500' : 'hover:text-rose-500'
+          }`}
+        >
+          <span>{moment.liked_by_me ? '♥' : '♡'}</span>
+          <span>{moment.reactions_count}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowComments((v) => !v)}
+          className="flex items-center gap-1 hover:text-slate-900"
+        >
+          <span>💬</span>
+          <span>{moment.comments_count}</span>
+        </button>
+      </div>
+
+      {showComments && <CommentSection momentId={moment.id} />}
+
+      {zoom && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setZoom(null)}
+        >
+          <img src={zoom} alt="" className="max-w-full max-h-full object-contain" />
+        </div>
+      )}
+    </article>
+  )
+}
