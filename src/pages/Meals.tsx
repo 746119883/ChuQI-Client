@@ -226,7 +226,7 @@ function OptionsSection() {
   const delOpt = useDeleteDiningOption()
 
   const [name, setName] = useState('')
-  const [kind, setKind] = useState<OptionKind>('dineout')
+  const [kind, setKind] = useState<OptionKind>('home')
   const [weight, setWeight] = useState(1)
 
   function add() {
@@ -247,7 +247,8 @@ function OptionsSection() {
     <section className="space-y-3">
       <h2 className="text-base font-semibold text-slate-900">就餐选项</h2>
       <p className="text-xs text-slate-400">
-        家里常去的馆子、爱点的外卖，加进来一起摇。权重越高摇中概率越大。
+        在家做的家常菜、爱点的外卖、常去的馆子，按类别加进来一起摇。
+        「在家做」也会和菜谱一起进摇号池。权重越高摇中概率越大。
       </p>
 
       <div className="flex items-center gap-2 flex-wrap">
