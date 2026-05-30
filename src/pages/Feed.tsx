@@ -1,12 +1,14 @@
 import { useMoments } from '@/hooks/useMoments'
 import MomentCard from '@/components/MomentCard'
 import MomentComposer from '@/components/MomentComposer'
+import OnThisDay from '@/components/OnThisDay'
 
 export default function Feed() {
   const { data, isLoading, error } = useMoments()
 
   return (
     <div className="space-y-4">
+      <OnThisDay />
       <MomentComposer />
 
       {isLoading && <p className="text-slate-500">加载中...</p>}

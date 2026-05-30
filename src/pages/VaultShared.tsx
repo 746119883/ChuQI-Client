@@ -13,10 +13,10 @@ import VaultBreadcrumb from '@/components/VaultBreadcrumb'
 import FolderCard from '@/components/FolderCard'
 import FileRow from '@/components/FileRow'
 import FilePreview from '@/components/FilePreview'
-import type { VaultFile, Visibility } from '@/lib/types'
-import { FolderPlus, Upload, Search, SlidersHorizontal, HardDrive, Trash2, Globe, Lock, Users } from 'lucide-react'
+import type { VaultFile } from '@/lib/types'
+import { FolderPlus, Upload, Search, SlidersHorizontal, Users, Trash2, HardDrive } from 'lucide-react'
 
-export default function Vault() {
+export default function VaultShared() {
   const { id } = useParams<{ id: string }>()
   const folderId = id ? Number(id) : null
 
@@ -24,7 +24,6 @@ export default function Vault() {
 
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
-  const [newIsShared, setNewIsShared] = useState(true)
   const [importantOnUpload, setImportantOnUpload] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<VaultFile | null>(null)
@@ -33,8 +32,8 @@ export default function Vault() {
   const [dragging, setDragging] = useState(false)
 
   const { data: folder } = useFolder(folderId ?? undefined)
-  const { data: folders } = useFolders(folderId)
-  const { data: files } = useFiles(folderId, { q: q || undefined, sort: sort || undefined })
+  const { data: folders } = useFolders(folderId, true)
+  const { data: files } = useFiles(folderId, { q: q || undefined, sort: sort || undefined, shared: true })
 
   const createFolder = useCreateFolder()
   const upload = useUploadFiles()
@@ -46,7 +45,7 @@ export default function Vault() {
     await createFolder.mutateAsync({
       name: newName.trim(),
       parent: folderId,
-      visibility: newIsShared ? 'family' : 'private',
+      visibility: 'family',
     })
     setNewName('')
     setCreating(false)
@@ -54,11 +53,10 @@ export default function Vault() {
 
   const doUpload = useCallback(async (list: File[]) => {
     if (list.length === 0) return
-    const visibility: Visibility = folder?.visibility ?? 'family'
-    await upload.mutateAsync({ files: list, folderId, isImportant: importantOnUpload, visibility })
+    await upload.mutateAsync({ files: list, folderId, isImportant: importantOnUpload, visibility: 'family' })
     if (fileRef.current) fileRef.current.value = ''
     setImportantOnUpload(false)
-  }, [folder, folderId, importantOnUpload, upload])
+  }, [folderId, importantOnUpload, upload])
 
   const onSelectFiles = (e: ChangeEvent<HTMLInputElement>) => {
     doUpload(Array.from(e.target.files ?? []))
@@ -72,8 +70,6 @@ export default function Vault() {
     doUpload(Array.from(e.dataTransfer.files))
   }
 
-  const onDeleteFolder = (fid: number) => deleteFolder.mutate(fid)
-
   const ancestors = folder?.ancestors ?? []
   const isOwner = me && folder && me.id === folder.owner.id
   const isEmpty = !folders?.length && !files?.length
@@ -85,19 +81,17 @@ export default function Vault() {
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      {/* 拖拽遮罩 */}
       {dragging && (
-        <div className="fixed inset-0 z-40 bg-blue-500/10 border-4 border-dashed border-blue-400 rounded-2xl flex items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-40 bg-sky-500/10 border-4 border-dashed border-sky-400 rounded-2xl flex items-center justify-center pointer-events-none">
           <div className="bg-white rounded-2xl shadow-xl px-8 py-6 flex flex-col items-center gap-3">
-            <Upload className="w-10 h-10 text-blue-500" />
-            <p className="text-lg font-semibold text-slate-700">松开即可上传</p>
+            <Upload className="w-10 h-10 text-sky-500" />
+            <p className="text-lg font-semibold text-slate-700">松开即可上传到共享空间</p>
           </div>
         </div>
       )}
 
-      <VaultBreadcrumb ancestors={ancestors} current={folder?.name} shared={false} />
+      <VaultBreadcrumb ancestors={ancestors} current={folder?.name} shared />
 
-      {/* 页头 */}
       {folder ? (
         <header className="flex items-start justify-between gap-3">
           <div>
@@ -106,15 +100,9 @@ export default function Vault() {
               <span>{folder.owner.username}</span>
               <span>·</span>
               <span>{folder.item_count} 项</span>
-              {folder.visibility === 'private' ? (
-                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 rounded-md text-slate-500">
-                  <Lock className="w-3 h-3" />私密
-                </span>
-              ) : (
-                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-sky-50 rounded-md text-sky-500">
-                  <Globe className="w-3 h-3" />家庭共享
-                </span>
-              )}
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-sky-50 rounded-md text-sky-500">
+                <Users className="w-3 h-3" />家庭共享
+              </span>
             </div>
           </div>
           {isOwner && (
@@ -136,17 +124,20 @@ export default function Vault() {
       ) : (
         <header className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md">
-              <HardDrive className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-md">
+              <Users className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">我的文件柜</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">家庭共享空间</h1>
+              <p className="text-xs text-slate-400 mt-0.5">所有家人标记为"家庭共享"的内容</p>
+            </div>
           </div>
           <Link
-            to="/vault/shared"
-            className="flex items-center gap-2 px-4 py-2 text-sm rounded-xl border border-sky-200 bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"
+            to="/vault"
+            className="flex items-center gap-2 px-4 py-2 text-sm rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"
           >
-            <Users className="w-4 h-4" />
-            家庭共享空间
+            <HardDrive className="w-4 h-4" />
+            我的文件柜
           </Link>
         </header>
       )}
@@ -158,8 +149,8 @@ export default function Vault() {
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
-            placeholder="搜索文件名…"
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400 bg-white"
+            placeholder="搜索共享文件名…"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400/30 focus:border-sky-300 bg-white"
           />
         </div>
         <div className="relative">
@@ -189,7 +180,7 @@ export default function Vault() {
           }`}
         >
           <FolderPlus className="w-4 h-4" />
-          {creating ? '取消' : '新建文件夹'}
+          {creating ? '取消' : '新建共享文件夹'}
         </button>
 
         <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none px-3 py-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors">
@@ -206,10 +197,10 @@ export default function Vault() {
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={upload.isPending}
-          className="flex items-center gap-2 px-4 py-2 text-sm bg-slate-900 text-white rounded-xl hover:bg-slate-700 disabled:opacity-50 transition-colors ml-auto"
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-sky-600 text-white rounded-xl hover:bg-sky-500 disabled:opacity-50 transition-colors ml-auto"
         >
           <Upload className="w-4 h-4" />
-          {upload.isPending ? '上传中…' : '上传文件'}
+          {upload.isPending ? '上传中…' : '上传到共享'}
         </button>
         <input ref={fileRef} type="file" multiple className="hidden" onChange={onSelectFiles} />
       </div>
@@ -224,26 +215,18 @@ export default function Vault() {
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="文件夹名，比如 重要证件 / 保险单 / 房产"
+            placeholder="文件夹名，比如 全家照片 / 共同证件 / 家庭账单"
             required
             autoFocus
             maxLength={100}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-400/30 focus:border-sky-300"
           />
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={newIsShared}
-                onChange={(e) => setNewIsShared(e.target.checked)}
-                className="rounded accent-sky-500"
-              />
-              家人共享
-            </label>
+          <p className="text-xs text-slate-400">共享空间内的文件夹默认对所有家人可见</p>
+          <div className="flex justify-end">
             <button
               type="submit"
               disabled={createFolder.isPending}
-              className="px-5 py-2 text-sm bg-slate-900 text-white rounded-xl hover:bg-slate-700 disabled:opacity-50 transition-colors"
+              className="px-5 py-2 text-sm bg-sky-600 text-white rounded-xl hover:bg-sky-500 disabled:opacity-50 transition-colors"
             >
               创建
             </button>
@@ -254,14 +237,15 @@ export default function Vault() {
       {/* 文件夹列表 */}
       {folders && folders.length > 0 && !q && (
         <section>
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">文件夹</h2>
+          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">共享文件夹</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {folders.map((f) => (
               <FolderCard
                 key={f.id}
                 folder={f}
                 canDelete={me?.id === f.owner.id}
-                onDelete={onDeleteFolder}
+                onDelete={(fid) => deleteFolder.mutate(fid)}
+                shared
               />
             ))}
           </div>
@@ -271,7 +255,7 @@ export default function Vault() {
       {/* 文件列表 */}
       {files && files.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">文件</h2>
+          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">共享文件</h2>
           <div className="space-y-2">
             {files.map((f) => (
               <FileRow key={f.id} file={f} onPreview={setPreview} />
@@ -283,12 +267,12 @@ export default function Vault() {
       {/* 空状态 */}
       {isEmpty && (
         <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-            <HardDrive className="w-8 h-8 text-slate-400" />
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center">
+            <Users className="w-8 h-8 text-sky-400" />
           </div>
           <div>
-            <p className="font-medium text-slate-500">这里还是空的</p>
-            <p className="text-sm text-slate-400 mt-1">新建文件夹，或直接拖拽文件到此处上传</p>
+            <p className="font-medium text-slate-500">共享空间还是空的</p>
+            <p className="text-sm text-slate-400 mt-1">上传文件或在自己的文件柜中将文件设为"家庭共享"</p>
           </div>
         </div>
       )}

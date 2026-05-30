@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useToggleLike, useDeleteMoment } from '@/hooks/useMoments'
+import { useDeleteMoment } from '@/hooks/useMoments'
 import { useMe } from '@/hooks/useAuth'
 import CommentSection from './CommentSection'
+import ReactionBar from './ReactionBar'
 import type { Moment } from '@/lib/types'
 
 interface Props {
@@ -10,7 +11,6 @@ interface Props {
 
 export default function MomentCard({ moment }: Props) {
   const { data: me } = useMe()
-  const like = useToggleLike()
   const del = useDeleteMoment()
   const [showComments, setShowComments] = useState(false)
   const [zoom, setZoom] = useState<string | null>(null)
@@ -40,13 +40,24 @@ export default function MomentCard({ moment }: Props) {
   return (
     <article className="bg-white rounded-xl p-5 space-y-3">
       <header className="flex items-center justify-between">
-        <div>
-          <div className="font-medium text-slate-900">{moment.author.username}</div>
-          <div className="text-xs text-slate-400">
-            {time}
-            {moment.visibility === 'private' && (
-              <span className="ml-2 px-1.5 py-0.5 bg-slate-100 rounded">仅自己</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center text-slate-500 text-xs shrink-0">
+            {moment.author.avatar_url ? (
+              <img src={moment.author.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              (moment.author.display_name || moment.author.username).slice(0, 1)
             )}
+          </div>
+          <div className="min-w-0">
+            <div className="font-medium text-slate-900 truncate">
+              {moment.author.display_name || moment.author.username}
+            </div>
+            <div className="text-xs text-slate-400">
+              {time}
+              {moment.visibility === 'private' && (
+                <span className="ml-2 px-1.5 py-0.5 bg-slate-100 rounded">仅自己</span>
+              )}
+            </div>
           </div>
         </div>
         {isAuthor && (
@@ -71,35 +82,31 @@ export default function MomentCard({ moment }: Props) {
           {moment.images.map((img) => (
             <div
               key={img.id}
-              className="aspect-square cursor-pointer overflow-hidden rounded-md bg-slate-100"
-              onClick={() => setZoom(img.image)}
+              className="aspect-square cursor-pointer overflow-hidden rounded-md bg-slate-100 relative"
+              onClick={() => setZoom(img.preview_url)}
             >
               <img
-                src={img.image}
+                src={img.thumbnail_url}
                 alt=""
                 loading="lazy"
                 className="w-full h-full object-cover hover:scale-105 transition-transform"
               />
+              {img.source === 'immich' && (
+                <span className="absolute bottom-1 right-1 text-[10px] px-1 bg-black/50 text-white rounded">
+                  Immich
+                </span>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      <div className="flex items-center gap-5 text-sm text-slate-500 pt-2">
-        <button
-          type="button"
-          onClick={() => like.mutate(moment.id)}
-          className={`flex items-center gap-1 transition-colors ${
-            moment.liked_by_me ? 'text-rose-500' : 'hover:text-rose-500'
-          }`}
-        >
-          <span>{moment.liked_by_me ? '♥' : '♡'}</span>
-          <span>{moment.reactions_count}</span>
-        </button>
+      <div className="flex items-center justify-between gap-3 text-sm text-slate-500 pt-2">
+        <ReactionBar moment={moment} />
         <button
           type="button"
           onClick={() => setShowComments((v) => !v)}
-          className="flex items-center gap-1 hover:text-slate-900"
+          className="flex items-center gap-1 hover:text-slate-900 shrink-0"
         >
           <span>💬</span>
           <span>{moment.comments_count}</span>

@@ -4,14 +4,14 @@ import type { VaultFolder, VaultFile, Visibility } from '@/lib/types'
 
 // ---------- Folders ----------
 
-export function useFolders(parentId?: number | null) {
+export function useFolders(parentId?: number | null, shared = false) {
   const key = parentId === null || parentId === undefined ? 'null' : parentId
   return useQuery({
-    queryKey: ['vault-folders', key],
+    queryKey: ['vault-folders', key, shared],
     queryFn: async () => {
-      const { data } = await api.get<VaultFolder[]>('/vault/folders/', {
-        params: { parent: key === 'null' ? 'null' : key },
-      })
+      const params: Record<string, string> = { parent: key === 'null' ? 'null' : String(key) }
+      if (shared) params.shared = '1'
+      const { data } = await api.get<VaultFolder[]>('/vault/folders/', { params })
       return data
     },
   })
@@ -62,16 +62,38 @@ export function useDeleteFolder() {
 
 // ---------- Files ----------
 
-export function useFiles(folderId?: number | null) {
+export function useFiles(
+  folderId?: number | null,
+  opts: { q?: string; sort?: string; shared?: boolean } = {},
+) {
   const key = folderId === null || folderId === undefined ? 'null' : folderId
   return useQuery({
-    queryKey: ['vault-files', key],
+    queryKey: ['vault-files', key, opts],
     queryFn: async () => {
-      const { data } = await api.get<VaultFile[]>('/vault/files/', {
-        params: { folder: key === 'null' ? 'null' : key },
+      const params: Record<string, string> = {}
+      if (opts.q) {
+        params.q = opts.q
+      } else {
+        params.folder = key === 'null' ? 'null' : String(key)
+      }
+      if (opts.sort) params.sort = opts.sort
+      if (opts.shared) params.shared = '1'
+      const { data } = await api.get<VaultFile[]>('/vault/files/', { params })
+      return data
+    },
+  })
+}
+
+export function useMoveFile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, folderId }: { id: number; folderId: number | null }) => {
+      const { data } = await api.post<VaultFile>(`/vault/files/${id}/move/`, {
+        folder_id: folderId,
       })
       return data
     },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['vault-files'] }),
   })
 }
 

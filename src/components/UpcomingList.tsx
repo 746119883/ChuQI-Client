@@ -57,7 +57,8 @@ export default function UpcomingList({ items }: Props) {
         const ev = occ.event
         const target = new Date(occ.date + 'T00:00:00')
         const isToday = daysUntilLabel(occ.date) === '今天'
-        const isOwner = me?.id === ev.owner.id
+        const isProfileBirthday = !!ev.is_profile_birthday
+        const canDelete = !isProfileBirthday && me?.id === ev.owner.id
         const age = ageHint(occ)
 
         return (
@@ -68,19 +69,32 @@ export default function UpcomingList({ items }: Props) {
             }`}
             style={isToday ? { '--tw-ring-color': ev.color } as React.CSSProperties : undefined}
           >
-            <div
-              className="w-14 h-14 rounded-lg flex flex-col items-center justify-center text-white shrink-0"
-              style={{ backgroundColor: ev.color }}
-            >
-              <div className="text-xs leading-none">
-                {target.getFullYear() !== new Date().getFullYear()
-                  ? target.getFullYear()
-                  : EVENT_TYPE_LABEL[ev.event_type]}
+            {isProfileBirthday ? (
+              <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-pink-100 flex items-center justify-center relative">
+                {ev.owner.avatar_url ? (
+                  <img src={ev.owner.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl">🎂</span>
+                )}
+                <span className="absolute bottom-0 inset-x-0 text-center text-[10px] bg-black/40 text-white leading-tight">
+                  {target.getMonth() + 1}/{target.getDate()}
+                </span>
               </div>
-              <div className="text-lg font-semibold leading-none mt-1">
-                {target.getMonth() + 1}/{target.getDate()}
+            ) : (
+              <div
+                className="w-14 h-14 rounded-lg flex flex-col items-center justify-center text-white shrink-0"
+                style={{ backgroundColor: ev.color }}
+              >
+                <div className="text-xs leading-none">
+                  {target.getFullYear() !== new Date().getFullYear()
+                    ? target.getFullYear()
+                    : EVENT_TYPE_LABEL[ev.event_type]}
+                </div>
+                <div className="text-lg font-semibold leading-none mt-1">
+                  {target.getMonth() + 1}/{target.getDate()}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -106,7 +120,12 @@ export default function UpcomingList({ items }: Props) {
                 {ev.is_lunar && occ.lunar_label && (
                   <> · 农历{occ.lunar_label}</>
                 )}
-                <> · {ev.owner.username}</>
+                <> · {ev.owner.display_name || ev.owner.username}</>
+                {isProfileBirthday && (
+                  <span className="ml-1.5 px-1.5 py-0.5 bg-pink-50 text-pink-600 rounded">
+                    资料生日
+                  </span>
+                )}
               </div>
               {ev.description && (
                 <div className="text-sm text-slate-600 mt-1 truncate">
@@ -115,11 +134,11 @@ export default function UpcomingList({ items }: Props) {
               )}
             </div>
 
-            {isOwner && (
+            {canDelete && (
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm(`删除"${ev.title}"?`)) del.mutate(ev.id)
+                  if (confirm(`删除"${ev.title}"?`)) del.mutate(ev.id as number)
                 }}
                 className="text-xs text-slate-400 hover:text-rose-600 shrink-0"
               >

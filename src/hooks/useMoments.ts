@@ -1,6 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
-import type { Moment, Comment, PaginatedResponse, Visibility } from '@/lib/types'
+import type {
+  Comment,
+  Moment,
+  OnThisDayResponse,
+  PaginatedResponse,
+  ReactionKey,
+  Visibility,
+} from '@/lib/types'
+
+export function useOnThisDay() {
+  return useQuery({
+    queryKey: ['onThisDay'],
+    queryFn: async () => {
+      const { data } = await api.get<OnThisDayResponse>('/feed/on-this-day/')
+      return data
+    },
+    staleTime: 1000 * 60 * 30,
+  })
+}
 
 export function useMoments() {
   return useQuery({
@@ -19,13 +37,18 @@ export function useCreateMoment() {
       content: string
       visibility: Visibility
       images: File[]
+      immichAssetIds?: string[]
     }) => {
       const fd = new FormData()
       fd.append('content', vars.content)
       fd.append('visibility', vars.visibility)
       vars.images.forEach((f) => fd.append('images', f))
+      ;(vars.immichAssetIds ?? []).forEach((id) =>
+        fd.append('immich_asset_ids', id),
+      )
       const { data } = await api.post<Moment>('/moments/', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        // 让 axios 自己生成带 boundary 的 multipart Content-Type
+        headers: { 'Content-Type': undefined } as never,
       })
       return data
     },
@@ -48,17 +71,19 @@ export function useDeleteMoment() {
   })
 }
 
-export function useToggleLike() {
+export function useReact() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (momentId: number) => {
-      const { data } = await api.post<{ liked: boolean; count: number }>(
-        `/moments/${momentId}/like/`,
-      )
-      return { momentId, ...data }
+    mutationFn: async (vars: { momentId: number; emoji: ReactionKey }) => {
+      const { data } = await api.post<{
+        my_reaction: ReactionKey | null
+        reactions_count: number
+      }>(`/moments/${vars.momentId}/react/`, { emoji: vars.emoji })
+      return { momentId: vars.momentId, ...data }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['moments'] })
+      qc.invalidateQueries({ queryKey: ['onThisDay'] })
     },
   })
 }
@@ -77,10 +102,10 @@ export function useComments(momentId: number) {
 export function useAddComment(momentId: number) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async (vars: { content: string; mentionedUserIds?: number[] }) => {
       const { data } = await api.post<Comment>(
         `/moments/${momentId}/comments/`,
-        { content },
+        { content: vars.content, mentioned_user_ids: vars.mentionedUserIds ?? [] },
       )
       return data
     },
