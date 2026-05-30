@@ -138,7 +138,7 @@ export default function Meals() {
         {savedMsg && <p className="text-sm text-green-600">{savedMsg}</p>}
       </section>
 
-      <OptionsSection />
+      <OptionsSection scope={scope} />
       <RecentLogsSection />
     </div>
   )
@@ -219,15 +219,28 @@ function ResultCard({
   )
 }
 
-function OptionsSection() {
+// 顶部分类标签 -> 添加表单默认类别
+const SCOPE_TO_KIND: Record<string, OptionKind> = {
+  all: 'home',
+  recipe: 'home',
+  takeout: 'takeout',
+  dineout: 'dineout',
+}
+
+function OptionsSection({ scope }: { scope: string }) {
   const { data } = useDiningOptions()
   const options = data?.results ?? []
   const createOpt = useCreateDiningOption()
   const delOpt = useDeleteDiningOption()
 
   const [name, setName] = useState('')
-  const [kind, setKind] = useState<OptionKind>('home')
+  const [kind, setKind] = useState<OptionKind>(SCOPE_TO_KIND[scope] ?? 'home')
   const [weight, setWeight] = useState(1)
+
+  // 切换上方分类标签时，添加表单的类别跟着变（用户仍可手动改）
+  useEffect(() => {
+    setKind(SCOPE_TO_KIND[scope] ?? 'home')
+  }, [scope])
 
   function add() {
     const n = name.trim()
