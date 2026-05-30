@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useUpdateTask, useDeleteTask } from '@/hooks/useTasks'
 import type { Task } from '@/lib/types'
+import { Trash2 } from 'lucide-react'
 
 interface Props {
   task: Task
@@ -97,9 +98,7 @@ export default function TaskRow({ task }: Props) {
           onClick={onDelete}
           className="text-xs text-slate-400 hover:text-rose-600 px-1"
           title="删除"
-        >
-          删
-        </button>
+        ><Trash2 className="w-3.5 h-3.5" /></button>
       </div>
     </div>
   )

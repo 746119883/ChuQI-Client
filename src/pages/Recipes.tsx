@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useRecipes } from '@/hooks/useRecipes'
 import { CATEGORIES, DIFFICULTY_LABEL } from '@/lib/recipeMeta'
 import type { RecipeCategory } from '@/lib/types'
+import { Loading } from '@/components/StateView'
 
 export default function Recipes() {
   const [category, setCategory] = useState<RecipeCategory | ''>('')
@@ -54,7 +55,7 @@ export default function Recipes() {
         </div>
       </div>
 
-      {isLoading && <p className="text-slate-500">加载中...</p>}
+      {isLoading && <Loading />}
       {!isLoading && recipes.length === 0 && (
         <p className="text-center text-slate-500 py-12">
           还没有菜谱，点右上「+ 新菜谱」把拿手菜记下来吧。

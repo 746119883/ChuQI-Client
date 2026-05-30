@@ -2,6 +2,7 @@ import { useMoments } from '@/hooks/useMoments'
 import MomentCard from '@/components/MomentCard'
 import MomentComposer from '@/components/MomentComposer'
 import OnThisDay from '@/components/OnThisDay'
+import { Loading } from '@/components/StateView'
 
 export default function Feed() {
   const { data, isLoading, error } = useMoments()
@@ -11,7 +12,7 @@ export default function Feed() {
       <OnThisDay />
       <MomentComposer />
 
-      {isLoading && <p className="text-slate-500">加载中...</p>}
+      {isLoading && <Loading />}
       {error && (
         <p className="text-rose-600">
           加载失败:{(error as Error).message}

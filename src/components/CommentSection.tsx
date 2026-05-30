@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react'
 import { useComments, useAddComment, useDeleteComment } from '@/hooks/useMoments'
 import { useMe, useMembers } from '@/hooks/useAuth'
+import { Trash2 } from 'lucide-react'
 
 interface Props {
   momentId: number
@@ -87,9 +88,7 @@ export default function CommentSection({ momentId }: Props) {
               onClick={() => del.mutate(c.id)}
               className="text-xs text-slate-400 hover:text-rose-600"
               title="删除"
-            >
-              删
-            </button>
+            ><Trash2 className="w-3.5 h-3.5" /></button>
           )}
         </div>
       ))}

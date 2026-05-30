@@ -4,6 +4,7 @@ import { useMe } from '@/hooks/useAuth'
 import CommentSection from './CommentSection'
 import ReactionBar from './ReactionBar'
 import type { Moment } from '@/lib/types'
+import { Trash2 } from 'lucide-react'
 
 interface Props {
   moment: Moment
@@ -65,9 +66,7 @@ export default function MomentCard({ moment }: Props) {
             type="button"
             onClick={onDelete}
             className="text-xs text-slate-400 hover:text-rose-600"
-          >
-            删除
-          </button>
+          ><Trash2 className="w-3.5 h-3.5" /></button>
         )}
       </header>
 

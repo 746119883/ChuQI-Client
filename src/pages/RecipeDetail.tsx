@@ -7,6 +7,7 @@ import {
 } from '@/hooks/useRecipes'
 import { useMe } from '@/hooks/useAuth'
 import { CATEGORY_LABEL, DIFFICULTY_LABEL } from '@/lib/recipeMeta'
+import { Trash2 } from 'lucide-react'
 
 export default function RecipeDetail() {
   const { id } = useParams<{ id: string }>()
@@ -54,9 +55,7 @@ export default function RecipeDetail() {
               <Link to={`/recipes/${recipe.id}/edit`} className="text-slate-500 hover:text-slate-900">
                 编辑
               </Link>
-              <button type="button" onClick={onDelete} className="text-slate-400 hover:text-rose-600">
-                删除
-              </button>
+              <button type="button" onClick={onDelete} className="text-slate-400 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
           )}
         </div>

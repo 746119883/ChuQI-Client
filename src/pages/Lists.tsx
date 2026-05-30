@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useLists, useCreateList } from '@/hooks/useTasks'
 import ListCard from '@/components/ListCard'
+import { Loading } from '@/components/StateView'
 
 export default function Lists() {
   const { data, isLoading } = useLists()
@@ -61,7 +62,7 @@ export default function Lists() {
         </form>
       )}
 
-      {isLoading && <p className="text-slate-500">加载中...</p>}
+      {isLoading && <Loading />}
 
       {data && data.results.length === 0 && (
         <p className="text-center text-slate-500 py-16">

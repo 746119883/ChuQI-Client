@@ -9,6 +9,7 @@ import { useMe } from '@/hooks/useAuth'
 import { CATEGORY_COLOR, yuan } from '@/lib/ledgerMeta'
 import LedgerEntryForm from '@/components/LedgerEntryForm'
 import type { LedgerEntry } from '@/lib/types'
+import { Pencil, Trash2 } from 'lucide-react'
 
 const MONTHS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
@@ -182,15 +183,11 @@ export default function Ledger() {
               </div>
               {me?.id === e.recorder.id && (
                 <div className="flex flex-col gap-1 text-xs shrink-0">
-                  <button onClick={() => { setEditing(e); setCreating(false) }} className="text-slate-400 hover:text-slate-900">
-                    改
-                  </button>
+                  <button onClick={() => { setEditing(e); setCreating(false) }} className="text-slate-400 hover:text-slate-900"><Pencil className="w-3.5 h-3.5" /></button>
                   <button
                     onClick={() => { if (confirm(`删除「${e.title}」?`)) del.mutate(e.id) }}
                     className="text-slate-400 hover:text-rose-600"
-                  >
-                    删
-                  </button>
+                  ><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               )}
             </article>

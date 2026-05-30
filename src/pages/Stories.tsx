@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { useStories, useDeleteStory } from '@/hooks/useStories'
 import { useMe } from '@/hooks/useAuth'
 import type { StoryListItem } from '@/lib/types'
+import { Loading } from '@/components/StateView'
+import { Trash2 } from 'lucide-react'
 
 export default function Stories() {
   const { data: me } = useMe()
@@ -30,7 +32,7 @@ export default function Stories() {
         className="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm"
       />
 
-      {isLoading && <p className="text-sm text-slate-400 text-center py-10">加载中…</p>}
+      {isLoading && <Loading />}
 
       {!isLoading && stories.length === 0 && (
         <div className="text-center py-16 text-slate-400">
@@ -85,9 +87,7 @@ function StoryCard({
               type="button"
               onClick={onDelete}
               className="text-slate-300 hover:text-red-500 text-xs shrink-0"
-            >
-              删除
-            </button>
+            ><Trash2 className="w-3.5 h-3.5" /></button>
           )}
         </div>
         <p className="text-xs text-slate-400">{story.date} · {story.author.display_name}</p>

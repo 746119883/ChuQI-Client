@@ -1,6 +1,7 @@
 import { useDeleteEvent } from '@/hooks/useEvents'
 import { useMe } from '@/hooks/useAuth'
 import type { EventOccurrence } from '@/lib/types'
+import { Trash2 } from 'lucide-react'
 
 interface Props {
   items: EventOccurrence[]
@@ -141,9 +142,7 @@ export default function UpcomingList({ items }: Props) {
                   if (confirm(`删除"${ev.title}"?`)) del.mutate(ev.id as number)
                 }}
                 className="text-xs text-slate-400 hover:text-rose-600 shrink-0"
-              >
-                删
-              </button>
+              ><Trash2 className="w-3.5 h-3.5" /></button>
             )}
           </article>
         )

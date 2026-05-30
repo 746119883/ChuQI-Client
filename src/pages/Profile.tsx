@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useMe, useUpdateProfile } from '@/hooks/useAuth'
+import { Loading } from '@/components/StateView'
 
 export default function Profile() {
   const { data: me, isLoading } = useMe()
@@ -21,7 +22,7 @@ export default function Profile() {
     }
   }, [me])
 
-  if (isLoading) return <div className="text-slate-500">加载中...</div>
+  if (isLoading) return <Loading />
   if (!me) return null
 
   const onSubmit = async (e: FormEvent) => {

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useNote, useCreateNote, useUpdateNote } from '@/hooks/useNotes'
+import { Loading } from '@/components/StateView'
 
 export default function NoteForm() {
   const { id } = useParams<{ id: string }>()
@@ -33,7 +34,7 @@ export default function NoteForm() {
   }
 
   if (isEdit && isLoading) {
-    return <p className="text-slate-500">加载中...</p>
+    return <Loading />
   }
 
   const submitting = create.isPending || update.isPending

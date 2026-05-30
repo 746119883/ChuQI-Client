@@ -12,6 +12,8 @@ import { ITEM_TYPE_META, STATUS_META, dateRangeLabel } from '@/lib/tripMeta'
 import TripItemForm from '@/components/TripItemForm'
 import TripChecklist from '@/components/TripChecklist'
 import type { TripItem } from '@/lib/types'
+import { Loading } from '@/components/StateView'
+import { Pencil, Trash2 } from 'lucide-react'
 
 export default function TripDetail() {
   const { id } = useParams<{ id: string }>()
@@ -37,7 +39,7 @@ export default function TripDetail() {
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]))
   }, [trip])
 
-  if (isLoading) return <p className="text-slate-500">加载中...</p>
+  if (isLoading) return <Loading />
   if (!trip) return <p className="text-slate-500">旅行不存在</p>
 
   const isOwner = me?.id === trip.owner.id
@@ -103,9 +105,7 @@ export default function TripDetail() {
               <Link to={`/trips/${trip.id}/edit`} className="text-slate-500 hover:text-slate-900">
                 编辑
               </Link>
-              <button onClick={onDelete} className="text-slate-400 hover:text-rose-600">
-                删除
-              </button>
+              <button onClick={onDelete} className="text-slate-400 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
           )}
         </div>
@@ -201,15 +201,11 @@ export default function TripDetail() {
                     </div>
                     {isOwner && (
                       <div className="flex flex-col gap-1 text-xs shrink-0">
-                        <button onClick={() => { setEditingItem(it); setAdding(false) }} className="text-slate-400 hover:text-slate-900">
-                          改
-                        </button>
+                        <button onClick={() => { setEditingItem(it); setAdding(false) }} className="text-slate-400 hover:text-slate-900"><Pencil className="w-3.5 h-3.5" /></button>
                         <button
                           onClick={() => { if (confirm('删除这项行程?')) delItem.mutate(it.id) }}
                           className="text-slate-400 hover:text-rose-600"
-                        >
-                          删
-                        </button>
+                        ><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
                     )}
                   </div>

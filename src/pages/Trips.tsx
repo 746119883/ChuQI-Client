@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useTrips } from '@/hooks/useTrips'
 import { STATUS_META, dateRangeLabel } from '@/lib/tripMeta'
+import { Loading } from '@/components/StateView'
 
 export default function Trips() {
   const { data, isLoading } = useTrips()
@@ -18,7 +19,7 @@ export default function Trips() {
         </Link>
       </div>
 
-      {isLoading && <p className="text-slate-500">加载中...</p>}
+      {isLoading && <Loading />}
       {!isLoading && trips.length === 0 && (
         <p className="text-center text-slate-500 py-12">
           还没有旅行，点右上「+ 新旅行」记录行程吧。

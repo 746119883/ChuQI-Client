@@ -11,6 +11,7 @@ import {
 import { useMe } from '@/hooks/useAuth'
 import ImmichPicker from '@/components/ImmichPicker'
 import type { ImmichAsset, StoryBlock } from '@/lib/types'
+import { Trash2 } from 'lucide-react'
 
 export default function StoryDetail() {
   const { id } = useParams<{ id: string }>()
@@ -207,7 +208,7 @@ function BlockView({
       {isAuthor && !editing && (
         <div className="absolute top-1 right-1 hidden group-hover:flex items-center gap-1 bg-white/90 rounded-md px-1 py-0.5 shadow-sm border border-slate-100">
           <button type="button" onClick={onStartEdit} className="text-xs text-slate-500 hover:text-slate-900 px-1">编辑</button>
-          <button type="button" onClick={onDelete} className="text-xs text-red-400 hover:text-red-600 px-1">删除</button>
+          <button type="button" onClick={onDelete} className="text-xs text-red-400 hover:text-red-600 px-1"><Trash2 className="w-3.5 h-3.5" /></button>
         </div>
       )}
     </div>

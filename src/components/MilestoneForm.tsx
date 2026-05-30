@@ -9,6 +9,7 @@ import {
 } from '@/hooks/useMilestones'
 import { MILESTONE_TYPES } from '@/lib/milestoneMeta'
 import type { Milestone, MilestoneType, Visibility } from '@/lib/types'
+import { Trash2 } from 'lucide-react'
 
 interface Props {
   milestone?: Milestone
@@ -145,9 +146,7 @@ export default function MilestoneForm({ milestone, onDone, onCancel }: Props) {
             type="button"
             onClick={onDelete}
             className="text-sm text-slate-400 hover:text-rose-600"
-          >
-            删除
-          </button>
+          ><Trash2 className="w-3.5 h-3.5" /></button>
         ) : (
           <span />
         )}

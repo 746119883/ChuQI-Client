@@ -3,6 +3,7 @@ import { useAlbum, useMedia, useDeleteAlbum } from '@/hooks/usePhotos'
 import { useMe } from '@/hooks/useAuth'
 import MediaGrid from '@/components/MediaGrid'
 import PhotoUploader from '@/components/PhotoUploader'
+import { Loading } from '@/components/StateView'
 
 export default function AlbumDetail() {
   const { id } = useParams<{ id: string }>()
@@ -14,7 +15,7 @@ export default function AlbumDetail() {
   const { data: me } = useMe()
   const del = useDeleteAlbum()
 
-  if (albumLoading) return <p className="text-slate-500">加载中...</p>
+  if (albumLoading) return <Loading />
   if (error || !album) return <p className="text-rose-600">相册不存在</p>
 
   const isOwner = me?.id === album.owner.id
@@ -56,7 +57,7 @@ export default function AlbumDetail() {
         </div>
       </header>
 
-      {mediaLoading && <p className="text-slate-500">加载中...</p>}
+      {mediaLoading && <Loading />}
       {mediaData && <MediaGrid items={mediaData.results} />}
     </div>
   )
