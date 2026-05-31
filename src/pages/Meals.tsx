@@ -67,13 +67,20 @@ export default function Meals() {
   const createLog = useCreateMealLog()
   const [savedMsg, setSavedMsg] = useState('')
 
-  function doRoll(key: string) {
+  // 切换分类:只切模式,清掉上一次的结果,不自动摇
+  function switchScope(key: string) {
+    if (key === scope) return
     setScope(key)
+    setSavedMsg('')
+    roll.reset()
+  }
+
+  function doRoll() {
     setSavedMsg('')
     setIsRolling(true)
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => setIsRolling(false), ANIM_MS)
-    const s = SCOPES.find((x) => x.key === key) ?? SCOPES[0]
+    const s = SCOPES.find((x) => x.key === scope) ?? SCOPES[0]
     roll.mutate({ ...s.params, exclude_days: 3, count: 4 })
   }
 
@@ -100,7 +107,7 @@ export default function Meals() {
             <button
               key={s.key}
               type="button"
-              onClick={() => doRoll(s.key)}
+              onClick={() => switchScope(s.key)}
               className={`px-3 py-1 rounded-full border ${
                 scope === s.key
                   ? 'bg-slate-900 text-white border-slate-900'
@@ -114,7 +121,7 @@ export default function Meals() {
 
         <button
           type="button"
-          onClick={() => doRoll(scope)}
+          onClick={doRoll}
           disabled={isRolling || roll.isPending}
           className="w-full py-4 text-lg font-medium bg-amber-500 text-white rounded-xl hover:bg-amber-600 disabled:opacity-60 transition-colors"
         >
@@ -229,7 +236,12 @@ const SCOPE_TO_KIND: Record<string, OptionKind> = {
 
 function OptionsSection({ scope }: { scope: string }) {
   const { data } = useDiningOptions()
-  const options = data?.results ?? []
+  const allOptions = data?.results ?? []
+  // 随便显示全部;其他栏只显示本类别的选项
+  const options =
+    scope === 'all'
+      ? allOptions
+      : allOptions.filter((o) => o.kind === SCOPE_TO_KIND[scope])
   const createOpt = useCreateDiningOption()
   const delOpt = useDeleteDiningOption()
 
