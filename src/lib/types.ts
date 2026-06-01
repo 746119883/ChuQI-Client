@@ -1,5 +1,171 @@
 export type Role = 'admin' | 'member' | 'elder'
 
+export type BloodType = 'A' | 'B' | 'AB' | 'O' | 'unknown' | ''
+
+export type AllergyType = 'drug' | 'food' | 'environment' | ''
+
+export interface Allergy {
+  name: string
+  type: AllergyType
+  note: string
+}
+
+export interface ChronicCondition {
+  name: string
+  diagnosed_date: string
+  note: string
+}
+
+export interface Medication {
+  name: string
+  dosage: string
+  note: string
+}
+
+export interface HealthProfile {
+  blood_type: BloodType
+  allergies: Allergy[]
+  chronic_conditions: ChronicCondition[]
+  medications: Medication[]
+  updated_at: string
+}
+
+/** 列表视图的轻量健康档案（仅血型）。 */
+export interface HealthProfileBrief {
+  blood_type: BloodType
+  updated_at: string
+}
+
+export interface MemberHealthProfile {
+  id: number
+  display_name: string
+  avatar_url: string | null
+  birthday: string | null
+  health_profile: HealthProfileBrief
+}
+
+// ---- 体检计划（Epic 2） ----
+export type CheckupFrequency = 'once' | 'yearly' | 'every_n_months'
+export type CheckupStatus = 'pending' | 'done' | 'skipped'
+
+export interface CheckupResultSummary {
+  visit_date: string
+  hospital: string
+  abnormal_count: number
+}
+
+export interface CheckupPlan {
+  id: number
+  user: number
+  name: string
+  scheduled_date: string
+  frequency: CheckupFrequency
+  interval_months: number | null
+  status: CheckupStatus
+  result_summary: CheckupResultSummary | null
+  created_at: string
+  updated_at: string
+}
+
+export interface HealthMetric {
+  name: string
+  value: number | null
+  unit: string
+  reference: string
+  abnormal: boolean
+}
+
+export interface CheckupResult {
+  id: number
+  plan: number
+  visit_date: string
+  hospital: string
+  items: string
+  conclusion: string
+  advice: string
+  metrics: HealthMetric[]
+  created_at: string
+  updated_at: string
+}
+
+export interface MetricHistoryPoint {
+  date: string
+  value: number | null
+  unit: string
+  reference: string
+  abnormal: boolean
+}
+
+// ---- 疫苗（Epic 3） ----
+export type VaccineStatus = 'pending' | 'done' | 'skipped'
+
+export interface VaccinePlan {
+  id: number
+  user: number
+  vaccine_name: string
+  dose_number: number
+  scheduled_date: string
+  status: VaccineStatus
+  is_overdue: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface VaccineOverview {
+  pending: VaccinePlan[]
+  done: VaccinePlan[]
+  overdue: VaccinePlan[]
+}
+
+export interface VaccinationRecord {
+  id: number
+  plan: number
+  administered_date: string
+  location: string
+  brand_batch: string
+  note: string
+  created_at: string
+  updated_at: string
+}
+
+export interface HealthReminderSettings {
+  vaccine_lead_days: number
+  checkup_lead_days: number
+  followup_lead_days: number
+  updated_at: string
+}
+
+// ---- 就医记录（Epic 4） ----
+export type VisitType = 'outpatient' | 'emergency' | 'inpatient'
+
+export interface MedicalVisit {
+  id: number
+  user: number
+  visit_date: string
+  hospital: string
+  department: string
+  visit_type: VisitType
+  diagnosis: string
+  treatment: string
+  doctor: string
+  followup_date: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface HealthAttachment {
+  id: number
+  name: string
+  size_bytes: number
+  content_type: string
+  file_url: string | null
+  is_image: boolean
+  uploaded_at: string
+  checkup_result: number | null
+  vaccination_record?: number | null
+  medical_visit?: number | null
+}
+
 export interface Profile {
   nickname: string
   avatar_url: string | null

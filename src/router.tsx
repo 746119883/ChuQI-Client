@@ -28,6 +28,19 @@ import Meals from '@/pages/Meals'
 import Stories from '@/pages/Stories'
 import StoryDetail from '@/pages/StoryDetail'
 import StoryForm from '@/pages/StoryForm'
+import Health from '@/pages/Health'
+import HealthProfilePage from '@/pages/HealthProfilePage'
+import HealthProfileEditPage from '@/pages/HealthProfileEditPage'
+import HealthSnapshotPage from '@/pages/HealthSnapshotPage'
+import CheckupsPage from '@/pages/CheckupsPage'
+import CheckupResultPage from '@/pages/CheckupResultPage'
+import MetricsHistoryPage from '@/pages/MetricsHistoryPage'
+import VaccinesPage from '@/pages/VaccinesPage'
+import VaccineRecordPage from '@/pages/VaccineRecordPage'
+import VisitsPage from '@/pages/VisitsPage'
+import VisitFormPage from '@/pages/VisitFormPage'
+import VisitDetailPage from '@/pages/VisitDetailPage'
+import HealthSettingsPage from '@/pages/HealthSettingsPage'
 
 export default function AppRouter() {
   return (
@@ -66,6 +79,20 @@ export default function AppRouter() {
           <Route path="stories/new" element={<StoryForm />} />
           <Route path="stories/:id" element={<StoryDetail />} />
           <Route path="timeline" element={<Timeline />} />
+          <Route path="health" element={<Health />} />
+          <Route path="health/settings" element={<HealthSettingsPage />} />
+          <Route path="health/:userId" element={<HealthProfilePage />} />
+          <Route path="health/:userId/edit" element={<HealthProfileEditPage />} />
+          <Route path="health/:userId/snapshot" element={<HealthSnapshotPage />} />
+          <Route path="health/:userId/checkups" element={<CheckupsPage />} />
+          <Route path="health/:userId/checkups/:planId/result" element={<CheckupResultPage />} />
+          <Route path="health/:userId/metrics" element={<MetricsHistoryPage />} />
+          <Route path="health/:userId/vaccines" element={<VaccinesPage />} />
+          <Route path="health/:userId/vaccines/:planId/record" element={<VaccineRecordPage />} />
+          <Route path="health/:userId/visits" element={<VisitsPage />} />
+          <Route path="health/:userId/visits/new" element={<VisitFormPage />} />
+          <Route path="health/:userId/visits/:visitId" element={<VisitDetailPage />} />
+          <Route path="health/:userId/visits/:visitId/edit" element={<VisitFormPage />} />
           <Route path="profile" element={<Profile />} />
           <Route path="family" element={<Family />} />
         </Route>

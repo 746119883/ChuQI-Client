@@ -18,6 +18,7 @@ const NAV_ITEMS: { to: string; label: string; end?: boolean }[] = [
   { to: '/timeline', label: '时间轴' },
   { to: '/ledger', label: '账本' },
   { to: '/vault', label: '文件柜' },
+  { to: '/health', label: '健康' },
 ]
 
 export default function Layout() {
